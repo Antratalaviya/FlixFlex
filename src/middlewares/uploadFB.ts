@@ -5,7 +5,7 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { app } from "../config/firebase.config";
+import { app } from "../dbConnection/firebase.config";
 import { UploadFbFile } from "../constants";
 
 async function uploadFB(file: UploadFbFile, fileType: string): Promise<string | void> {
