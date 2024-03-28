@@ -1,5 +1,8 @@
 import express, { NextFunction, Request, Response } from "express";
-import cors from "cors"
+import cors from "cors";
+
+import userRoutes from "./routes/user.route";
+
 const app = express();
 
 app.use((_, res: Response, next: NextFunction) => {
@@ -12,17 +15,22 @@ app.use((_, res: Response, next: NextFunction) => {
   next();
 });
 
-app.use(express.urlencoded({extended : true}))
-app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static("public"));
 
-app.use(cors({
-    origin : ["http://localhost:3000", "http://localhost:3001"],
-    credentials : true,
-    methods : 'GET, POST, PUT, PATCH, DELETE',
-}))
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    credentials: true,
+    methods: "GET, POST, PUT, PATCH, DELETE",
+  })
+);
 
-app.get('/test',(req:Request, res : Response)=>{
-    res.json("Api is running")
-})
+app.get("/test", (req: Request, res: Response) => {
+  res.json("Api is running");
+});
+
+app.use("/api/v1/user", userRoutes);
 
 export { app };

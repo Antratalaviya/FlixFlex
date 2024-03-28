@@ -8,7 +8,7 @@ dotenv.config();
 
 const port = config.get("PORT") || 8080;
 
-// dbConnect();
+dbConnect();
 
 app.listen(port, (): void => {
   console.log(`Server is running on port : ${port}`);
