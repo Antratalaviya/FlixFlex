@@ -1,11 +1,11 @@
 import { User } from "../models/user.model";
 
-const getUserByEmail = (email: string): object => {
+const getUserByEmail = (id: string) => {
   const query: object = {
-    email: email,
+    _id: id,
   };
   const select: string = "-password -refreshToken";
-  return User.findOne(query).select(select);
+  return User.findById(query).select(select);
 };
 
 const getUserById = (id: string) => {
@@ -20,12 +20,21 @@ const getUserByEmailOrUsername = (email: string, username: string) => {
   const query: object = {
     $or: [{ email: email }, { username: username }],
   };
-  const select: string = "-password -refreshToken";
+  const select: string = "-password";
   return User.findOne(query).select(select);
 };
 
-const createUser = (body: object): object => {
-  return new User(body).select("-password -refreshToken");
+const createUser = async (body: object) => {
+  return await User.create(body).then((res) => {
+    return {
+      _id: res._id,
+      username: res.username,
+      email: res.email,
+      fullName: res.fullName,
+      avatar: res.avatar,
+      watchHistory: res.watchHistory,
+    };
+  });
 };
 export default {
   getUserByEmail,

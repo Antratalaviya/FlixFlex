@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import config from "config";
 
 import { Collection } from "../constants";
+import { NextFunction } from "express";
 
 const userSchema = new mongoose.Schema(
   {
@@ -54,17 +55,18 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified()) return next();
-  bcrypt.hash(this.password, 10).then((result) => {
-    this.password = result;
-  });
-  next();
+  if (!this.isModified("password")) return next();
+  try {
+    const hashedPassword = await bcrypt.hash(this.password, 10);
+    this.password = hashedPassword;
+    next();
+  } catch (error) {
+    return next(error as Error);
+  }
 });
-
-userSchema.methods.isPasswordMatched = async function (
-  password: string
-): Promise<boolean> {
-  return await bcrypt.compare(password, this.password);
+userSchema.methods.isPasswordMatched = async function (password: string) {
+  const result = await bcrypt.compare(password, this.password);
+  return result;
 };
 
 userSchema.methods.generateAccessToken = function () {
