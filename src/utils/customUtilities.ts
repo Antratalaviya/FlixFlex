@@ -16,7 +16,7 @@ export class ApiError {
   success: boolean;
   constructor(
     public statusCode: number,
-    public message = "Something went wrong",
+    public message = "Something went wrong"
   ) {
     this.data = null;
     this.success = false;

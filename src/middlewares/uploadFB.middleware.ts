@@ -11,7 +11,7 @@ import { UploadFbFile } from "../constants";
 async function uploadFB(file: UploadFbFile, fileType: string): Promise<string | void> {
   const storage = getStorage(app, process.env.storageBucket);
     let dateTime = Date.now();
-    let fileName = `fileType/${dateTime}`;
+    let fileName = `${fileType}/${dateTime}`;
     let storageRef = ref(storage, fileName);
     let metaData = {
       contentType: file.type,
