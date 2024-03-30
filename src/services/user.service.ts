@@ -20,21 +20,11 @@ const getUserByEmailOrUsername = (email: string, username: string) => {
   const query: object = {
     $or: [{ email: email }, { username: username }],
   };
-  const select: string = "-password";
-  return User.findOne(query).select(select);
+  return User.findOne(query);
 };
 
-const createUser = async (body: object) => {
-  return await User.create(body).then((res) => {
-    return {
-      _id: res._id,
-      username: res.username,
-      email: res.email,
-      fullName: res.fullName,
-      avatar: res.avatar,
-      watchHistory: res.watchHistory,
-    };
-  });
+const createUser = async (input: object) => {
+  return await User.create(input);
 };
 export default {
   getUserByEmail,

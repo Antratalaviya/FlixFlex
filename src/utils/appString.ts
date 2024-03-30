@@ -3,6 +3,7 @@ export const AppString = {
   PASSWORD_NOT_FOUND: "Password is required",
   PASSWORD_INCORRECT: "Password is incorrect",
   EMAIL_USERNAME_NOT_FOUND: "Email or password is required",
+  AVATAR_NOT_FOUND: "avatar image is required",
   USER_ALREADY_EXIST: "User already exist with this email or username",
   USER_NOT_EXIST: "User not exist with this email or username",
   USER_REGISTERED_SUCCESSFULLY: "User registered successfully",

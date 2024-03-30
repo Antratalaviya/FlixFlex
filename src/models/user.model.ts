@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import config from "config";
 
 import { Collection } from "../constants";
-import { NextFunction } from "express";
+import { UserDocument } from "./interfaceModel";
 
 const userSchema = new mongoose.Schema(
   {
@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function (this: UserDocument, next) {
   if (!this.isModified("password")) return next();
   try {
     const hashedPassword = await bcrypt.hash(this.password, 10);
@@ -64,12 +64,17 @@ userSchema.pre("save", async function (next) {
     return next(error as Error);
   }
 });
-userSchema.methods.isPasswordMatched = async function (password: string) {
-  const result = await bcrypt.compare(password, this.password);
+userSchema.methods.isPasswordMatched = async function (
+  password: string
+): Promise<boolean> {
+  const user = this as UserDocument;
+
+  const result = await bcrypt.compare(password, user.password);
   return result;
 };
 
-userSchema.methods.generateAccessToken = function () {
+userSchema.methods.generateAccessToken = function (this: UserDocument) {
+  let tokenMaxAge: number = config.get("ACCESS_TOKEN_EXPIRE");
   return jwt.sign(
     {
       sub: {
@@ -78,22 +83,26 @@ userSchema.methods.generateAccessToken = function () {
         email: this.email,
         fullName: this.fullName,
       },
-      exp: config.get("ACCESS_TOKEN_EXPIRE"),
+      exp: tokenMaxAge * 86400,
     },
     config.get("ACCESS_TOKEN_SECRET")
   );
 };
 
-userSchema.methods.generateRefreshToken = function () {
+userSchema.methods.generateRefreshToken = function (this: UserDocument) {
+  let tokenMaxAge: number = config.get("REFRESH_TOKEN_EXPIRE");
   return jwt.sign(
     {
       sub: {
         _id: this._id,
       },
-      exp: config.get("ACCESS_TOKEN_EXPIRE"),
+      exp: tokenMaxAge * 86400,
     },
-    config.get("ACCESS_TOKEN_SECRET")
+    config.get("REFRESH_TOKEN_SECRET")
   );
 };
 
-export const User = mongoose.model(Collection.MODEL_USER, userSchema);
+export const User = mongoose.model<UserDocument>(
+  Collection.MODEL_USER,
+  userSchema
+);
