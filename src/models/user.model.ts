@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import config from "config";
 
-import { Collection } from "../constants";
+import { Collection, TokenType } from "../constants";
 import { UserDocument } from "./interfaceModel";
 
 const userSchema = new mongoose.Schema(
@@ -74,32 +74,42 @@ userSchema.methods.isPasswordMatched = async function (
 };
 
 userSchema.methods.generateAccessToken = function (this: UserDocument) {
-  let tokenMaxAge: number = config.get("ACCESS_TOKEN_EXPIRE");
-  return jwt.sign(
-    {
-      sub: {
-        _id: this._id,
-        username: this.username,
-        email: this.email,
-        fullName: this.fullName,
-      },
-      exp: tokenMaxAge * 86400,
-    },
-    config.get("ACCESS_TOKEN_SECRET")
-  );
+  const secretKey: Secret = config.get("ACCESS_TOKEN_SECRET");
+  if (!secretKey) {
+    throw new Error("Access token secret key is not defined");
+  }
+
+  const payload = {
+    _id: this._id,
+    username: this.username,
+    email: this.email,
+    fullName: this.fullName,
+  };
+
+  const options: SignOptions = {
+    expiresIn: config.get("ACCESS_TOKEN_EXPIRE"),
+    algorithm: "HS256",
+  };
+
+  return jwt.sign(payload, secretKey, options);
 };
 
 userSchema.methods.generateRefreshToken = function (this: UserDocument) {
-  let tokenMaxAge: number = config.get("REFRESH_TOKEN_EXPIRE");
-  return jwt.sign(
-    {
-      sub: {
-        _id: this._id,
-      },
-      exp: tokenMaxAge * 86400,
-    },
-    config.get("REFRESH_TOKEN_SECRET")
-  );
+  const secretKey: Secret = config.get("REFRESH_TOKEN_SECRET");
+  if (!secretKey) {
+    throw new Error("Access token secret key is not defined");
+  }
+
+  const payload = {
+    _id: this._id,
+  };
+
+  const options: SignOptions = {
+    expiresIn: config.get("REFRESH_TOKEN_EXPIRE"),
+    algorithm: "HS256"
+  };
+
+  return jwt.sign(payload, secretKey, options);
 };
 
 export const User = mongoose.model<UserDocument>(

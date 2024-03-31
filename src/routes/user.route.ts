@@ -2,6 +2,7 @@ import express from "express";
 
 import userController from "../controllers/user.controller";
 import { upload } from "../middlewares/multer.middleware";
+import { verifyUserAccess } from "../middlewares/auth.middleware";
 
 const router = express();
 
@@ -21,5 +22,9 @@ router.post(
 );
 
 router.post("/login", userController.login);
+
+//secure routes
+
+router.patch("/logout", verifyUserAccess, userController.logOut);
 
 export default router;

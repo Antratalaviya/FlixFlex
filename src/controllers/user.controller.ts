@@ -85,7 +85,7 @@ const register = asyncHandler(async (req: Request, res: Response) => {
               watchHistory: newUser.watchHistory,
             },
           },
-          AppString.USER_REGISTERED_SUCCESSFULLY
+          AppString.USER_REGISTERED
         )
       );
     }
@@ -99,7 +99,7 @@ const register = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const login = asyncHandler(async (req: Request, res: Response) => {
-  // try {
+  try {
     const { email, username, password } = req.body;
     if (!email && !username) {
       return res
@@ -130,7 +130,6 @@ const login = asyncHandler(async (req: Request, res: Response) => {
     const refreshToken = user.generateRefreshToken();
     user.refreshToken = refreshToken;
     user.save();
-
     const options = {
       httpOnly: true,
       secure: true,
@@ -144,19 +143,41 @@ const login = asyncHandler(async (req: Request, res: Response) => {
         new ApiResponce(
           status.OK,
           { user: user, accessToken: accessToken },
-          AppString.USER_LOGIN_SUCCESSFULLY
+          AppString.USER_LOGIN
         )
       );
-  // } catch (error) {
-    // return res
-    //   .status(status.INTERNAL_SERVER_ERROR)
-    //   .json(
-    //     new ApiError(status.INTERNAL_SERVER_ERROR, (error as Error).message)
-    //   );
-  // }
+  } catch (error) {
+    return res
+      .status(status.INTERNAL_SERVER_ERROR)
+      .json(
+        new ApiError(status.INTERNAL_SERVER_ERROR, (error as Error).message)
+      );
+  }
+});
+
+const logOut = asyncHandler(async (req: Request, res: Response) => {
+  try {
+    await userService.updateUserById(req.user._id);
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+    return res
+      .status(status.OK)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json(new ApiResponce(status.OK, {}, AppString.USER_LOGOUT));
+  } catch (error) {
+    return res
+      .status(status.INTERNAL_SERVER_ERROR)
+      .json(
+        new ApiError(status.INTERNAL_SERVER_ERROR, (error as Error).message)
+      );
+  }
 });
 
 export default {
   register,
   login,
+  logOut,
 };

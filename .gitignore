@@ -74,6 +74,7 @@ web_modules/
 .env.test
 .env.production
 config/development.json
+types.d.ts
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

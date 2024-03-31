@@ -7,7 +7,7 @@ import { dbConnect } from "./dbConnection/db.config";
 dotenv.config();
 
 const port = config.get("PORT") || 8080;
-
+  
 dbConnect();
 
 app.listen(port, (): void => {
