@@ -175,9 +175,12 @@ const logOut = asyncHandler(async (req: Request, res: Response) => {
       );
   }
 });
-
+const updateProfile = asyncHandler(async (req: Request, res: Response) => {
+  console.log("from update", req.body);
+});
 export default {
   register,
   login,
   logOut,
+  updateProfile,
 };
