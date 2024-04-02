@@ -14,7 +14,7 @@ const pick = (object: { [key: string]: any }, keys: string[]) => {
 
 export const validate =
   (schema: object) => (req: Request, res: Response, next: NextFunction) => {
-    let validSchema = pick(schema, ["query", "body", "params"]);
+    let validSchema = pick(schema, ["query", "body", "params", "files"]);
     let objectSchema = pick(req, Object.keys(validSchema));
     const { value, error } = joi
       .compile(validSchema)

@@ -1,3 +1,4 @@
+import { UserDocument } from "../models/interfaceModel";
 import { User } from "../models/user.model";
 
 const getUserByEmail = (id: string) => {
@@ -27,11 +28,38 @@ const createUser = async (input: object) => {
   return await User.create(input);
 };
 
-const updateUserById = async (id: string) => {
+const logoutUserById = async (id: string) => {
   return await User.findByIdAndUpdate(
     id,
     {
       $set: { refreshToken: undefined },
+    },
+    {
+      new: true,
+    }
+  );
+};
+const updateUserById = async (id: string, userBody: UserDocument) => {
+  if (userBody.email || userBody.username) {
+    let exist = await User.findOne({
+      $and: [
+        {
+          $or: [{ email: userBody.email }, { username: userBody.username }],
+        },
+        {
+          _id: { $ne: id },
+        },
+      ],
+    });
+    if (exist) {
+      return null;
+    }
+  }
+
+  return await User.findByIdAndUpdate(
+    id,
+    {
+      $set: { ...userBody },
     },
     {
       new: true,
@@ -44,4 +72,5 @@ export default {
   getUserByEmailOrUsername,
   createUser,
   updateUserById,
+  logoutUserById,
 };

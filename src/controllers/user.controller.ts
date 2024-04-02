@@ -4,8 +4,8 @@ import { Request, Response } from "express";
 import { ApiError, ApiResponce, asyncHandler } from "../utils/customUtilities";
 import { AppString } from "../utils/appString";
 import userService from "../services/user.service";
-import uploadFB from "../middlewares/uploadFB.middleware";
-import { FirebaseBucket, IFileStatus } from "../constants";
+import firebaseService from "../middlewares/uploadFB.middleware";
+import { DFileStatus, FirebaseBucket, IFileStatus } from "../constants";
 import { UserInput } from "../models/interfaceModel";
 
 const register = asyncHandler(async (req: Request, res: Response) => {
@@ -42,21 +42,21 @@ const register = asyncHandler(async (req: Request, res: Response) => {
         .status(status.BAD_REQUEST)
         .json(new ApiError(status.BAD_REQUEST, AppString.AVATAR_NOT_FOUND));
     }
-    await uploadFB(avatarFile, FirebaseBucket.IMAGE).then(
-      async (file: IFileStatus) => {
+    await firebaseService
+      .uploadToFireBase(avatarFile, FirebaseBucket.IMAGE)
+      .then(async (file: IFileStatus) => {
         if (file.isUploaded) {
           avatarPath = file.filePath;
         }
-      }
-    );
+      });
     if (coverImageFile) {
-      await uploadFB(coverImageFile, FirebaseBucket.IMAGE).then(
-        async (file: IFileStatus) => {
+      await firebaseService
+        .uploadToFireBase(coverImageFile, FirebaseBucket.IMAGE)
+        .then(async (file: IFileStatus) => {
           if (file.isUploaded) {
             coverImagePath = file.filePath;
           }
-        }
-      );
+        });
     }
     let userData = {
       username: input.username,
@@ -157,7 +157,7 @@ const login = asyncHandler(async (req: Request, res: Response) => {
 
 const logOut = asyncHandler(async (req: Request, res: Response) => {
   try {
-    await userService.updateUserById(req.user._id);
+    await userService.logoutUserById(req.user._id);
     const options = {
       httpOnly: true,
       secure: true,
@@ -176,7 +176,79 @@ const logOut = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 const updateProfile = asyncHandler(async (req: Request, res: Response) => {
-  console.log("from update", req.body);
+  try {
+    let user = await userService.getUserById(req.user._id);
+    if (!user) {
+      return res
+        .status(status.NOT_FOUND)
+        .json(new ApiError(status.NOT_FOUND, AppString.USER_NOT_EXIST));
+    }
+    let fileArray = req.files as { [fieldname: string]: Express.Multer.File[] };
+    let avatarFile = fileArray["avatar"] ? fileArray["avatar"][0] : undefined;
+    let avatarPath;
+    let coverImagePath;
+    let coverImageFile = fileArray["coverImage"]
+      ? fileArray["coverImage"][0]
+      : undefined;
+    if (avatarFile && user.avatar) {
+      let file = await firebaseService.uploadToFireBase(
+        avatarFile,
+        FirebaseBucket.IMAGE
+      );
+      if (!file.isUploaded) {
+        return res
+          .status(status.INTERNAL_SERVER_ERROR)
+          .json(new ApiError(status.INTERNAL_SERVER_ERROR));
+      }
+      avatarPath = file.filePath;
+      let deleteimage = await firebaseService.deleteFromFirebase(user.avatar);
+      if (!deleteimage.isDeleted) {
+        return res
+          .status(status.INTERNAL_SERVER_ERROR)
+          .json(new ApiError(status.INTERNAL_SERVER_ERROR));
+      }
+    }
+    if (coverImageFile) {
+      let file = await firebaseService.uploadToFireBase(
+        coverImageFile,
+        FirebaseBucket.IMAGE
+      );
+      if (!file.isUploaded) {
+        return res
+          .status(status.INTERNAL_SERVER_ERROR)
+          .json(new ApiError(status.INTERNAL_SERVER_ERROR));
+      }
+      coverImagePath = file.filePath;
+    }
+    if (user.coverImage) {
+      let deleteimage = await firebaseService.deleteFromFirebase(user.avatar);
+      if (!deleteimage.isDeleted) {
+        return res
+          .status(status.INTERNAL_SERVER_ERROR)
+          .json(new ApiError(status.INTERNAL_SERVER_ERROR));
+      }
+    }
+
+    let update = await userService.updateUserById(req.user._id, {
+      ...req.body,
+      avatar: avatarPath ? avatarPath : user.avatar,
+      coverImage: coverImagePath ? coverImagePath : user.coverImage,
+    });
+    if (!update) {
+      return res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json(new ApiError(status.INTERNAL_SERVER_ERROR));
+    }
+    return res
+      .status(status.OK)
+      .json(new ApiResponce(status.OK, {}, AppString.USER_UPDATED));
+  } catch (error) {
+    return res
+      .status(status.INTERNAL_SERVER_ERROR)
+      .json(
+        new ApiError(status.INTERNAL_SERVER_ERROR, (error as Error).message)
+      );
+  }
 });
 export default {
   register,

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import config from "config";
 
-import { Collection, TokenType } from "../constants";
+import { Collection } from "../constants";
 import { UserDocument } from "./interfaceModel";
 
 const userSchema = new mongoose.Schema(
@@ -106,7 +106,7 @@ userSchema.methods.generateRefreshToken = function (this: UserDocument) {
 
   const options: SignOptions = {
     expiresIn: config.get("REFRESH_TOKEN_EXPIRE"),
-    algorithm: "HS256"
+    algorithm: "HS256",
   };
 
   return jwt.sign(payload, secretKey, options);

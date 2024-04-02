@@ -8,6 +8,7 @@ const register = {
     fullName: commonValid.fullnameValidation,
     password: commonValid.passwordValidation,
   }),
+  files: commonValid.fileValidationReqSchema,
 };
 
 const login = {
@@ -21,10 +22,10 @@ const profile = {
     username: commonValid.usernameValidation,
     email: commonValid.emailValidation,
     fullName: commonValid.fullnameValidation,
-    password: commonValid.passwordValidation,
     avatar: commonValid.avatarValidation,
     coverImage: commonValid.coverImageValidation,
   }),
+  files: commonValid.fileValidationSchema,
 };
 export default {
   login,

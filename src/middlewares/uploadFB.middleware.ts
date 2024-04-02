@@ -1,8 +1,15 @@
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 import { app } from "../dbConnection/firebase.config";
-import { IFileStatus } from "../constants";
+import { DFileStatus, IFileStatus } from "../constants";
+import config from "config";
 
-async function uploadFB(
+async function uploadToFireBase(
   file: Express.Multer.File,
   fileType: string
 ): Promise<IFileStatus> {
@@ -11,9 +18,8 @@ async function uploadFB(
       isUploaded: false,
       filePath: "",
     };
-    // if (!this.isValidRequest) return reject(fileStatus);
-    const storage = getStorage(app, process.env.storageBucket);
-    let fileName = `${fileType}/${Date.now()}/${file.originalname}`;
+    const storage = getStorage(app, config.get("storageBucket"));
+    let fileName = `${fileType}/${Date.now()}-${file.originalname}`;
     let storageRef = ref(storage, fileName);
     const metadata = {
       contentType: file.mimetype,
@@ -34,4 +40,23 @@ async function uploadFB(
   });
 }
 
-export default uploadFB;
+async function deleteFromFirebase(downloadUrl: string): Promise<DFileStatus> {
+  return new Promise<DFileStatus>(async (resolve, reject) => {
+    const fileStatus: DFileStatus = {
+      isDeleted: false,
+    };
+    const storage = getStorage(app, config.get("storageBucket"));
+    let fileRef = ref(storage, downloadUrl);
+    await deleteObject(fileRef)
+      .then(() => {
+        fileStatus.isDeleted = true;
+        resolve(fileStatus);
+      })
+      .catch((error) => {
+        console.log(error);
+        reject(fileStatus);
+      });
+  });
+}
+
+export default { uploadToFireBase, deleteFromFirebase };

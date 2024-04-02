@@ -20,9 +20,70 @@ const fullnameValidation = stringReqValidation.min(3).max(30);
 const usernameValidation = stringReqValidation.min(3).max(30);
 const genderValidation = stringReqValidation.valid("male", "female", "other");
 const dateReqValidation = dateValidation.required();
-const avatarValidation = stringReqValidation;
+const fileValidationReqSchema = joi
+  .object({
+    avatar: joi
+      .array()
+      .items(
+        joi.object({
+          mimetype: joi
+            .string()
+            .regex(/^image\//)
+            .required(),
+          size: joi
+            .number()
+            .max(5 * 1024 * 1024)
+            .required(),
+        })
+      )
+      .required(),
+    coverImage: joi.array().items(
+      joi.object({
+        mimetype: joi
+          .string()
+          .regex(/^image\//)
+          .required(),
+        size: joi
+          .number()
+          .max(5 * 1024 * 1024)
+          .required(),
+      })
+    ),
+  })
+  .unknown(true);
+const fileValidationSchema = joi
+  .object({
+    avatar: joi.array().items(
+      joi.object({
+        mimetype: joi
+          .string()
+          .regex(/^image\//)
+          .required(),
+        size: joi
+          .number()
+          .max(5 * 1024 * 1024)
+          .required(),
+      })
+    ),
+    coverImage: joi.array().items(
+      joi.object({
+        mimetype: joi
+          .string()
+          .regex(/^image\//)
+          .required(),
+        size: joi
+          .number()
+          .max(5 * 1024 * 1024)
+          .required(),
+      })
+    ),
+  })
+  .unknown(true);
+const avatarFileValidation = fileValidationSchema.required();
+const coverImageFileValidation = stringValidation;
+const avatarReqValidation = stringReqValidation;
+const avatarValidation = stringValidation;
 const coverImageValidation = stringValidation;
-
 export default {
   emailValidation,
   dateValidation,
@@ -33,4 +94,9 @@ export default {
   usernameValidation,
   coverImageValidation,
   avatarValidation,
+  avatarFileValidation,
+  avatarReqValidation,
+  coverImageFileValidation,
+  fileValidationSchema,
+  fileValidationReqSchema,
 };

@@ -31,8 +31,18 @@ router.post("/login", validate(userValidation.login), userController.login);
 router.patch("/logout", verifyUserAccess, userController.logOut);
 router.put(
   "/edit",
-  validate(userValidation.profile),
+  upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+    {
+      name: "coverImage",
+      maxCount: 1,
+    },
+  ]),
   verifyUserAccess,
+  validate(userValidation.profile),
   userController.updateProfile
 );
 
