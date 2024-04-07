@@ -8,6 +8,7 @@ import userValidation from "../validations/user.validation";
 
 const router = express();
 
+router.get("/", userController.getAllUser); //not authorized
 router.post(
   "/register",
   upload.fields([
@@ -44,6 +45,56 @@ router.put(
   verifyUserAccess,
   validate(userValidation.profile),
   userController.updateProfile
+);
+
+router.get("/profile", verifyUserAccess, userController.getProfile);
+
+router.get("/refresh", verifyUserAccess, userController.refreshAccessToken);
+
+router.put(
+  "/edit/password",
+  verifyUserAccess,
+  validate(userValidation.password),
+  userController.changeCurrentPassword
+);
+
+router.put(
+  "/edit/coverImage",
+  upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+    {
+      name: "coverImage",
+      maxCount: 1,
+    },
+  ]),
+  verifyUserAccess,
+  validate(userValidation.file),
+  userController.updateUserCoverImage
+);
+router.put(
+  "/edit/avatar",
+  upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+    {
+      name: "coverImage",
+      maxCount: 1,
+    },
+  ]),
+  verifyUserAccess,
+  validate(userValidation.file),
+  userController.updateUserAvatar
+);
+router.put(
+  "/edit/account",
+  verifyUserAccess,
+  validate(userValidation.account),
+  userController.updateAccountDetails
 );
 
 export default router;

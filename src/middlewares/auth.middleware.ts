@@ -37,3 +37,34 @@ export const verifyUserAccess = async (
       );
   }
 };
+
+export const verifyUserRefresh = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    let token =
+      req.cookies?.refreshToken ||
+      req.headers?.authorization?.replace("Bearer ", "");
+    if (!token) {
+      return res
+        .status(status.UNAUTHORIZED)  
+        .json(new ApiError(status.UNAUTHORIZED, AppString.UNAUTHORIZED));
+    }
+    const decoded = jwt.verify(token, config.get("REFRESH_TOKEN_SECRET"), {
+      complete: true,
+    });
+    let payload = decoded.payload as userTokenPayload;
+    let user = await userService.getUserById(payload._id);
+    req.user = user;
+    next();
+  } catch (error) {
+    return res
+      .status(status.INTERNAL_SERVER_ERROR)
+      .json(
+        new ApiError(status.INTERNAL_SERVER_ERROR, (error as Error).message)
+      );
+  }
+};
+

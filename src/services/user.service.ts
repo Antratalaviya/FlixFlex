@@ -1,6 +1,5 @@
 import { UserDocument } from "../models/interfaceModel";
 import { User } from "../models/user.model";
-
 const getUserByEmail = (id: string) => {
   const query: object = {
     _id: id,
@@ -44,7 +43,7 @@ const updateUserById = async (id: string, userBody: UserDocument) => {
     let exist = await User.findOne({
       $and: [
         {
-          $or: [{ email: userBody.email }, { username: userBody.username }],
+          $or: [{ email: userBody?.email }, { username: userBody?.username }],
         },
         {
           _id: { $ne: id },
@@ -66,6 +65,14 @@ const updateUserById = async (id: string, userBody: UserDocument) => {
     }
   );
 };
+
+const getAllUser = async (page: number, limit: number) => {
+  return await User.find()
+    .select("-password -refreshToken -__v")
+    .skip(page * limit)
+    .limit(limit);
+};
+
 export default {
   getUserByEmail,
   getUserById,
@@ -73,4 +80,5 @@ export default {
   createUser,
   updateUserById,
   logoutUserById,
+  getAllUser,
 };
