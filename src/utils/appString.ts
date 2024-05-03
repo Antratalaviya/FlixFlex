@@ -19,4 +19,17 @@ export const AppString = {
   USER_NOT_FOUND: "user not found",
   INVALID_TOKEN: "token is invalid",
   TOKEN_EXPIRE: "session expire",
+
+  VIDEO_UPLOADED: "video uploaded successfully",
+  TITLE_DESC_REQUIRED: "title and description required",
+  VIDEO_THUMBNAIL_REQUIRED: "video and thumbnail required",
+  VIDEO_NOT_FOUND: "video not found",
+  VIDEO_DELETED: "video deleted successfully",
+  VIDEO_RETRIEVED: "video retrieved successfully",
+  VIDEO_UPDATED: "video updated successfully",
+
+  UPDATE_FAILED: "update failed !! Please try again",
+  DELETE_FAILED: "delete failed !! Please try again",
+
+  FILE_UPLOAD_ERR: "file upload error, please try again",
 };

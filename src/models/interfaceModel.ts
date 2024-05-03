@@ -18,3 +18,17 @@ export interface UserDocument extends UserInput, Document {
   generateAccessToken(): string;
   generateRefreshToken(): string;
 }
+
+export interface VideoInput {
+  videoFile: string;
+  thumbnail: string;
+  title: string;
+  description: string;
+}
+
+export interface VideoDocument extends VideoInput, Document {
+  duration: string;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}

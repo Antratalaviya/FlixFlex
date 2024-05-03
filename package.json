@@ -25,6 +25,7 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
+    "@numairawan/video-duration": "^1.0.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.0.3",
     "config": "^3.3.11",

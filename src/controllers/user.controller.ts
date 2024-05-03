@@ -71,23 +71,9 @@ const register = asyncHandler(async (req: Request, res: Response) => {
       newUser.save();
     }
     if (newUser) {
-      return res.status(status.OK).json(
-        new ApiResponce(
-          status.CREATED,
-          {
-            user: {
-              username: newUser.username,
-              email: newUser.email,
-              fullName: newUser.fullName,
-              password: newUser.password,
-              avatar: newUser.avatar,
-              coverImage: newUser.coverImage,
-              watchHistory: newUser.watchHistory,
-            },
-          },
-          AppString.USER_REGISTERED
-        )
-      );
+      return res
+        .status(status.OK)
+        .json(new ApiResponce(status.CREATED, {}, AppString.USER_REGISTERED));
     }
   } catch (error) {
     return res
@@ -142,7 +128,7 @@ const login = asyncHandler(async (req: Request, res: Response) => {
       .json(
         new ApiResponce(
           status.OK,
-          { user: user, accessToken: accessToken },
+          { refreshToken : refreshToken, accessToken: accessToken },
           AppString.USER_LOGIN
         )
       );
@@ -223,7 +209,9 @@ const updateProfile = asyncHandler(async (req: Request, res: Response) => {
       coverImagePath = file.filePath;
     }
     if (user.coverImage) {
-      let deleteimage = await firebaseService.deleteFromFirebase(user.coverImage);
+      let deleteimage = await firebaseService.deleteFromFirebase(
+        user.coverImage
+      );
       if (!deleteimage.isDeleted) {
         return res
           .status(status.INTERNAL_SERVER_ERROR)
@@ -252,27 +240,32 @@ const updateProfile = asyncHandler(async (req: Request, res: Response) => {
       );
   }
 });
-const getProfile = asyncHandler(async (req: Request, res: Response) => {
-  try {
-    let user = await userService.getUserById(req.user._id);
-    if (!user) {
+const getUserChannelProfile = asyncHandler(
+  async (req: Request, res: Response) => {
+    try {
+      let user = await userService.getFullUserById(
+        req.params.username,
+        req.user?._id
+      );
+      if (!user) {
+        return res
+          .status(status.NOT_FOUND)
+          .json(new ApiError(status.NOT_FOUND, AppString.USER_NOT_EXIST));
+      }
       return res
-        .status(status.NOT_FOUND)
-        .json(new ApiError(status.NOT_FOUND, AppString.USER_NOT_EXIST));
+        .status(status.OK)
+        .json(
+          new ApiResponce(status.OK, { user: user }, AppString.USER_RETRIEVED)
+        );
+    } catch (error) {
+      return res
+        .status(status.INTERNAL_SERVER_ERROR)
+        .json(
+          new ApiError(status.INTERNAL_SERVER_ERROR, (error as Error).message)
+        );
     }
-    return res
-      .status(status.OK)
-      .json(
-        new ApiResponce(status.OK, { user: user }, AppString.USER_RETRIEVED)
-      );
-  } catch (error) {
-    return res
-      .status(status.INTERNAL_SERVER_ERROR)
-      .json(
-        new ApiError(status.INTERNAL_SERVER_ERROR, (error as Error).message)
-      );
   }
-});
+);
 
 const getAllUser = asyncHandler(async (req: Request, res: Response) => {
   try {
@@ -384,7 +377,7 @@ const updateAccountDetails = asyncHandler(
       if (!user) {
         return res
           .status(status.INTERNAL_SERVER_ERROR)
-          .json(new ApiError(status.INTERNAL_SERVER_ERROR));
+          .json(new ApiError(status.INTERNAL_SERVER_ERROR,AppString.UPDATE_FAILED));
       }
       return res
         .status(status.OK)
@@ -425,7 +418,9 @@ const updateUserAvatar = asyncHandler(async (req: Request, res: Response) => {
         .json(new ApiError(status.INTERNAL_SERVER_ERROR));
     }
     avatarPath = file.filePath;
-    let deleteimage = await firebaseService.deleteFromFirebase(user.avatar);
+    let deleteimage: DFileStatus = await firebaseService.deleteFromFirebase(
+      user.avatar
+    );
     if (!deleteimage.isDeleted) {
       return res
         .status(status.INTERNAL_SERVER_ERROR)
@@ -483,7 +478,7 @@ const updateUserCoverImage = asyncHandler(
       }
       coverImagePath = file.filePath;
       if (user.coverImage) {
-        let deleteimage = await firebaseService.deleteFromFirebase(
+        let deleteimage: DFileStatus = await firebaseService.deleteFromFirebase(
           user.coverImage
         );
         if (!deleteimage.isDeleted) {
@@ -527,7 +522,7 @@ export default {
   login,
   logOut,
   updateProfile,
-  getProfile,
+  getUserChannelProfile,
   getAllUser,
   refreshAccessToken,
   changeCurrentPassword,

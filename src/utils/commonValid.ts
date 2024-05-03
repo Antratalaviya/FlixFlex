@@ -79,11 +79,47 @@ const fileValidationSchema = joi
     ),
   })
   .unknown(true);
+
 const avatarFileValidation = fileValidationSchema.required();
 const coverImageFileValidation = stringValidation;
 const avatarReqValidation = stringReqValidation;
 const avatarValidation = stringValidation;
 const coverImageValidation = stringValidation;
+
+const fileVidandImgReqValidation = joi
+  .object({
+    video: joi
+      .array()
+      .items(
+        joi.object({
+          mimetype: joi
+            .string()
+            .regex(/^video\//)
+            .required(),
+        })
+      )
+      .required(),
+    thumbnail: joi
+      .array()
+      .items(
+        joi.object({
+          mimetype: joi
+            .string()
+            .regex(/^image\//)
+            .required(),
+          size: joi
+            .number()
+            .max(5 * 1024 * 1024)
+            .required(),
+        })
+      )
+      .required(),
+  })
+  .unknown(true);
+
+const titleValidation = stringReqValidation;
+const descriptionValidation = stringReqValidation;
+const idValidation = stringReqValidation;
 export default {
   emailValidation,
   dateValidation,
@@ -99,4 +135,8 @@ export default {
   coverImageFileValidation,
   fileValidationSchema,
   fileValidationReqSchema,
+  fileVidandImgReqValidation,
+  titleValidation,
+  descriptionValidation,
+  idValidation
 };

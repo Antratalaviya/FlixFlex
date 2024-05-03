@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 import { Collection } from "../constants";
+import { VideoDocument } from "./interfaceModel";
 
 const videoSchema = new mongoose.Schema(
   {
@@ -37,10 +38,13 @@ const videoSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // likes : {
+
+    // }
   },
   {
     timestamps: true,
   }
 );
 videoSchema.plugin(mongooseAggregatePaginate);
-export const Video = mongoose.model(Collection.MODEL_VIDEO, videoSchema);
+export const Video = mongoose.model<VideoDocument>(Collection.MODEL_VIDEO, videoSchema);

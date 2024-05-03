@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 
 import userRoutes from "./routes/user.route";
+import videoRoutes from "./routes/video.route";
 
 const app = express();
 
@@ -32,5 +33,6 @@ app.get("/test", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/video", videoRoutes);
 
 export { app };

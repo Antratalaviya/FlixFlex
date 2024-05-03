@@ -47,7 +47,7 @@ router.put(
   userController.updateProfile
 );
 
-router.get("/profile", verifyUserAccess, userController.getProfile);
+router.get("/profile", verifyUserAccess, userController.getUserChannelProfile);  //un-done
 
 router.get("/refresh", verifyUserAccess, userController.refreshAccessToken);
 

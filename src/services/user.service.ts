@@ -27,17 +27,6 @@ const createUser = async (input: object) => {
   return await User.create(input);
 };
 
-const logoutUserById = async (id: string) => {
-  return await User.findByIdAndUpdate(
-    id,
-    {
-      $set: { refreshToken: undefined },
-    },
-    {
-      new: true,
-    }
-  );
-};
 const updateUserById = async (id: string, userBody: UserDocument) => {
   if (userBody.email || userBody.username) {
     let exist = await User.findOne({
@@ -66,10 +55,68 @@ const updateUserById = async (id: string, userBody: UserDocument) => {
   );
 };
 
+const getFullUserById = async (
+  username: string,
+  _id: string
+): Promise<object> => {
+  let pipeline = [
+    {
+      $match: { username: username?.toLowerCase() },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "SubscribedTo",
+      },
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+          $size: "$subscribers",
+        },
+        channelsSubscribedTo: {
+          $size: "$SubscribedTo",
+        },
+        isSubscribed: {
+          $cond: {
+            $if: { $in: [_id, "$subscribers.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        fullName: 1,
+        username: 1,
+        email: 1,
+        avatar: 1,
+        coverImage: 1,
+        subscribersCount: 1,
+        channelsSubscribedTo: 1,
+        isSubscribed: 1,
+      },
+    },
+  ];
+
+  return await User.aggregate(pipeline);
+};
+
 const getAllUser = async (page: number, limit: number) => {
   return await User.find()
     .select("-password -refreshToken -__v")
-    .skip(page * limit)
+    .skip((page - 1) * limit)
     .limit(limit);
 };
 
@@ -79,6 +126,6 @@ export default {
   getUserByEmailOrUsername,
   createUser,
   updateUserById,
-  logoutUserById,
   getAllUser,
+  getFullUserById,
 };
