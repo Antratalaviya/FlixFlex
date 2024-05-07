@@ -28,8 +28,30 @@ export const AppString = {
   VIDEO_RETRIEVED: "video retrieved successfully",
   VIDEO_UPDATED: "video updated successfully",
 
+  USER_SUBSCRIBED: "user subscribed to channel successfully",
+  USER_UNSUBSCRIBED: "user unsubscribed to channel successfully",
+
   UPDATE_FAILED: "update failed !! Please try again",
   DELETE_FAILED: "delete failed !! Please try again",
+  SUBSCRIPTION_FAILED: "subscription failed !! Please try again",
+  UNSUBSCRIPTION_FAILED: "unsubscription failed !! Please try again",
 
   FILE_UPLOAD_ERR: "file upload error, please try again",
+
+  SUBSCRIBER_FETCHED: "subscriber fetched successfully",
+  CHANNEL_FETCHED: "channel fetched successfully",
+
+  CHANNEL_NOT_FOUND: "channel not found",
+  SUBSCRIBER_NOT_FOUND: "subscriber not found",
+
+  COMMENT_POSTED: "comment posted successfully",
+  COMMENT_RETRIEVED: "comment retrieved successfully",
+  COMMENT_UPDATED: "comment updated successfully",
+  COMMENT_DELETED: "comment deleted successfully",
+
+  LIKED_COMMENT: "comment liked",
+  DISLIKED_COMMENT: "comment disliked",
+
+  LIKED_VIDEO: "video liked",
+  DISLIKED_VIDEO: "video disliked",
 };

@@ -33,7 +33,7 @@ const file = {
 };
 const account = {
   body: joi.object({
-    email: commonValid.emailValidation,
+    username: commonValid.usernameValidation,
     fullName: commonValid.fullnameValidation,
   }),
 };

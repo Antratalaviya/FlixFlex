@@ -128,7 +128,7 @@ const login = asyncHandler(async (req: Request, res: Response) => {
       .json(
         new ApiResponce(
           status.OK,
-          { refreshToken : refreshToken, accessToken: accessToken },
+          { refreshToken: refreshToken, accessToken: accessToken },
           AppString.USER_LOGIN
         )
       );
@@ -143,9 +143,12 @@ const login = asyncHandler(async (req: Request, res: Response) => {
 
 const logOut = asyncHandler(async (req: Request, res: Response) => {
   try {
-    await userService.updateUserById(req.user._id, {
+    let logout = await userService.updateUserById(req.user._id, {
       refreshToken: "",
     } as UserDocument);
+
+    await logout?.save();
+
     const options = {
       httpOnly: true,
       secure: true,
@@ -243,10 +246,11 @@ const updateProfile = asyncHandler(async (req: Request, res: Response) => {
 const getUserChannelProfile = asyncHandler(
   async (req: Request, res: Response) => {
     try {
-      let user = await userService.getFullUserById(
-        req.params.username,
-        req.user?._id
-      );
+      let username: string =
+        typeof req.query?.username === "string"
+          ? req.query?.username || ""
+          : "";
+      let user = await userService.getFullUserById(username, req.user?._id);
       if (!user) {
         return res
           .status(status.NOT_FOUND)
@@ -254,9 +258,7 @@ const getUserChannelProfile = asyncHandler(
       }
       return res
         .status(status.OK)
-        .json(
-          new ApiResponce(status.OK, { user: user }, AppString.USER_RETRIEVED)
-        );
+        .json(new ApiResponce(status.OK, user, AppString.USER_RETRIEVED));
     } catch (error) {
       return res
         .status(status.INTERNAL_SERVER_ERROR)
@@ -368,16 +370,19 @@ const changeCurrentPassword = asyncHandler(
 const updateAccountDetails = asyncHandler(
   async (req: Request, res: Response) => {
     try {
-      const { fullName, email } = req.body;
+      const { fullName, username } = req.body;
 
       let user = await userService.updateUserById(req.user._id, {
         fullName: fullName,
-        email: email,
+        username: username,
       } as UserDocument);
+
       if (!user) {
         return res
           .status(status.INTERNAL_SERVER_ERROR)
-          .json(new ApiError(status.INTERNAL_SERVER_ERROR,AppString.UPDATE_FAILED));
+          .json(
+            new ApiError(status.INTERNAL_SERVER_ERROR, AppString.UPDATE_FAILED)
+          );
       }
       return res
         .status(status.OK)

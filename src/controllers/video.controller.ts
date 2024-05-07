@@ -16,7 +16,6 @@ import { FirebaseBucket, IFileStatus } from "../constants";
 import firebaseService from "../middlewares/uploadFB.middleware";
 import { VideoInput } from "../models/interfaceModel";
 import videoService from "../services/video.service";
-import mongoose from "mongoose";
 
 const publishAVideo = asyncHandler(async (req: Request, res: Response) => {
   try {
@@ -71,8 +70,9 @@ const publishAVideo = asyncHandler(async (req: Request, res: Response) => {
       duration: duration,
       isPublished: true,
     };
-    let newVideo = await videoService.postVideo(video);
-    newVideo.save();
+
+    await videoService.postVideo(video);
+
     return res
       .status(status.OK)
       .json(new ApiResponce(status.OK, {}, AppString.VIDEO_UPLOADED));
@@ -124,11 +124,46 @@ const updateVideo = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
+const searchVideo = asyncHandler(async (req: Request, res: Response) => {
+  try {
+    let keyword: string =
+      typeof req.query?.keyword === "string" ? req.query?.keyword : "";
+    let page: number =
+      typeof req.query?.page === "string" ? parseInt(req.query?.page) || 1 : 1;
+    let limit: number =
+      typeof req.query?.limit === "string"
+        ? parseInt(req.query?.limit) || 10
+        : 10;
+
+    let video = await videoService.getAllVideo(keyword, page, limit);
+
+    if (!video) {
+      return res
+        .status(status.NOT_FOUND)
+        .json(new ApiError(status.NOT_FOUND, AppString.VIDEO_NOT_FOUND));
+    }
+    return res
+      .status(status.OK)
+      .json(
+        new ApiResponce(
+          status.OK,
+          { total: video.length, videos: video },
+          AppString.VIDEO_RETRIEVED
+        )
+      );
+  } catch (error) {
+    return res
+      .status(status.INTERNAL_SERVER_ERROR)
+      .json(
+        new ApiError(status.INTERNAL_SERVER_ERROR, (error as Error).message)
+      );
+  }
+});
 const getVideo = asyncHandler(async (req: Request, res: Response) => {
   try {
-    let _id: string = req.params.id;
-    const matchCriteria = { _id: new mongoose.Types.ObjectId(_id) };
-    let video = await videoService.getAllVideoById(matchCriteria, 1, 1);
+    let id = req.params.id;
+
+    let video = await videoService.getFullVideoById(id);
 
     if (!video) {
       return res
@@ -146,18 +181,15 @@ const getVideo = asyncHandler(async (req: Request, res: Response) => {
       );
   }
 });
-
 const getAllVideo = asyncHandler(async (req: Request, res: Response) => {
   try {
     let page: number =
-      typeof req.query?.page === "string"
-        ? parseInt(req.query?.page, 1) || 1
-        : 1;
+      typeof req.query?.page === "string" ? parseInt(req.query?.page) || 1 : 1;
     let limit: number =
       typeof req.query?.limit === "string"
-        ? parseInt(req.query?.limit, 10) || 10
+        ? parseInt(req.query?.limit) || 10
         : 10;
-    let video = await videoService.getAllVideoById({}, page, limit);
+    let video = await videoService.getAllVideo("", page, limit);
 
     if (!video) {
       return res
@@ -263,4 +295,5 @@ export default {
   getAllVideo,
   togglePublishStatus,
   deleteVideo,
+  searchVideo,
 };

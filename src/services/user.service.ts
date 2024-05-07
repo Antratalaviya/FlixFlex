@@ -28,27 +28,9 @@ const createUser = async (input: object) => {
 };
 
 const updateUserById = async (id: string, userBody: UserDocument) => {
-  if (userBody.email || userBody.username) {
-    let exist = await User.findOne({
-      $and: [
-        {
-          $or: [{ email: userBody?.email }, { username: userBody?.username }],
-        },
-        {
-          _id: { $ne: id },
-        },
-      ],
-    });
-    if (exist) {
-      return null;
-    }
-  }
-
   return await User.findByIdAndUpdate(
     id,
-    {
-      $set: { ...userBody },
-    },
+    { ...userBody },
     {
       new: true,
     }
@@ -61,7 +43,9 @@ const getFullUserById = async (
 ): Promise<object> => {
   let pipeline = [
     {
-      $match: { username: username?.toLowerCase() },
+      $match: {
+        username: { $regex: new RegExp(username?.toLowerCase(), "i") },
+      },
     },
     {
       $lookup: {
@@ -88,11 +72,7 @@ const getFullUserById = async (
           $size: "$SubscribedTo",
         },
         isSubscribed: {
-          $cond: {
-            $if: { $in: [_id, "$subscribers.subscriber"] },
-            then: true,
-            else: false,
-          },
+          $in: [_id, "$subscribers.subscriber"],
         },
       },
     },

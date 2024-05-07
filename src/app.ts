@@ -1,8 +1,15 @@
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import fs from "fs";
+import path from "path";
+import yaml from 'yaml';
 
 import userRoutes from "./routes/user.route";
 import videoRoutes from "./routes/video.route";
+import subscriptionRoutes from "./routes/subscription.route";
+import likesRoutes from "./routes/likes.route";
+import commentRoutes from "./routes/comment.route";
 
 const app = express();
 
@@ -32,7 +39,19 @@ app.get("/test", (req: Request, res: Response) => {
   res.json("Api is running");
 });
 
+// swagger configuration
+const swaggerFile = fs.readFileSync(
+  path.join(process.cwd(), "swagger.yaml"),
+  "utf-8"
+);
+const swaggerJson = yaml.parse(swaggerFile);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerJson));
+
+// app routes
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/video", videoRoutes);
-
+app.use("/api/v1/subscription", subscriptionRoutes);
+app.use("/api/v1/comment", commentRoutes);
+app.use("/api/v1/likes", likesRoutes);
+ 
 export { app };

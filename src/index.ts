@@ -1,12 +1,11 @@
 import dotenv from "dotenv";
-import config from "config";
 
 import { app } from "./app";
 import { dbConnect } from "./dbConnection/db.config";
-
+ 
 dotenv.config();
 
-const port = config.get("PORT") || 8080;
+const port = process.env.PORT || 8081;
   
 dbConnect();
 

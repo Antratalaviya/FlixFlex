@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Video } from "../models/video.model";
 
 const postVideo = async (input: object) => {
@@ -8,14 +9,75 @@ const getVideoById = async (_id: string) => {
   return await Video.findById(_id).select("-__v");
 };
 
-const getAllVideoById = async (
-  matchCriteria: object,
-  page: number,
-  limit: number
-): Promise<object> => {
+const getFullVideoById = async (videoId: string): Promise<object> => {
+  await Video.updateOne({ _id: videoId }, { $inc: { views: 1 } });
+
   let pipeline = [
     {
-      $match: matchCriteria,
+      $match: { _id: new mongoose.Types.ObjectId(videoId) },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "video",
+        as: "videos",
+      },
+    },
+    {
+      $addFields: {
+        avatar: {
+          $first: "$user.avatar",
+        },
+        username: {
+          $first: "$user.username",
+        },
+        likes: {
+          $size: "$videos",
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        title: 1,
+        description: 1,
+        thumbnail: 1,
+        videoFile: 1,
+        duration: 1,
+        avatar: 1,
+        username: 1,
+        views: 1,
+        likes: 1,
+        createdAt: 1,
+      },
+    },
+  ];
+
+  return await Video.aggregate(pipeline);
+};
+
+const getAllVideo = async (
+  keyword: string,
+  page: number,
+  limit: number
+) => {
+  let pipeline = [
+    {
+      $match: {
+        $or: [
+          { description: { $regex: new RegExp(keyword.toLowerCase(), "i") } },
+          { title: { $regex: new RegExp(keyword.toLowerCase(), "i") } }
+        ]
+      }
     },
     {
       $skip: (page - 1) * limit,
@@ -43,7 +105,6 @@ const getAllVideoById = async (
     },
     {
       $project: {
-        _id: 1,
         title: 1,
         thumbnail: 1,
         videoFile: 1,
@@ -76,7 +137,8 @@ const deleteVideoById = async (_id: string) => {
 export default {
   postVideo,
   getVideoById,
-  getAllVideoById,
+  getFullVideoById,
+  getAllVideo,
   updateVideoById,
-  deleteVideoById
+  deleteVideoById,
 };

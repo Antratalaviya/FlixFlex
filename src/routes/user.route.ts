@@ -91,7 +91,7 @@ router.put(
   userController.updateUserAvatar
 );
 router.put(
-  "/edit/account",
+  "/edit/account", 
   verifyUserAccess,
   validate(userValidation.account),
   userController.updateAccountDetails

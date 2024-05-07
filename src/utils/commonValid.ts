@@ -120,6 +120,7 @@ const fileVidandImgReqValidation = joi
 const titleValidation = stringReqValidation;
 const descriptionValidation = stringReqValidation;
 const idValidation = stringReqValidation;
+const contentValidation = stringReqValidation
 export default {
   emailValidation,
   dateValidation,
@@ -138,5 +139,6 @@ export default {
   fileVidandImgReqValidation,
   titleValidation,
   descriptionValidation,
-  idValidation
+  idValidation,
+  contentValidation
 };

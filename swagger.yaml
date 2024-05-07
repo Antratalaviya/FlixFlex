@@ -1,0 +1,557 @@
+openapi: 3.0.0
+info:
+  title: FlixFlex
+  version: 1.0.0
+servers:
+  - url: http://localhost:900/api/v1
+  - url: http://localhost:8080/api/v1
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    bearerAuth:
+      type: http
+      scheme: bearer
+tags:
+  - name: User
+  - name: Video
+  - name: subscription
+  - name: Likes
+  - name: Comment
+paths:
+  /user/register:
+    post:
+      tags:
+        - User
+      summary: register
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: demo_@123
+                avatar:
+                  type: string
+                  format: binary
+                coverImage:
+                  type: string
+                  format: binary
+                email:
+                  type: string
+                  example: demo@gmail.com
+                fullName:
+                  type: string
+                  example: demo
+                password:
+                  type: string
+                  example: Antra@123
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/login:
+    post:
+      tags:
+        - User
+      summary: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: demo@gmail.com
+                password: Antra@123
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/logout:
+    patch:
+      tags:
+        - User
+      summary: logout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: demo@gmail.com
+                password: Antra@123
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/profile:
+    get:
+      tags:
+        - User
+      summary: getProfile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: username
+          in: query
+          schema:
+            type: string
+          example: ra1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/:
+    get:
+      tags:
+        - User
+      summary: getAllUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/refresh:
+    get:
+      tags:
+        - User
+      summary: refresh
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/edit/avatar:
+    put:
+      tags:
+        - User
+      summary: edit/avatar
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/edit/coverImage:
+    put:
+      tags:
+        - User
+      summary: edit/coverimg
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                coverImage:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/edit/account:
+    put:
+      tags:
+        - User
+      summary: edit/account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: demo_test@123
+                fullName: demo js
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/edit/password:
+    put:
+      tags:
+        - User
+      summary: edit/password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                oldPassword: Antra@124
+                newPassword: Antra@123
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /video/publish:
+    post:
+      tags:
+        - Video
+      summary: postVideo
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: how to make nature reels and videos
+                description:
+                  type: string
+                  example: video describes the nature
+                video:
+                  type: string
+                  format: binary
+                thumbnail:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /video/:
+    get:
+      tags:
+        - Video
+      summary: getAllVideo
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /video/{id}:
+    get:
+      tags:
+        - Video
+      summary: getVideo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6616504d31f108739e373c1b
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - Video
+      summary: updateVideo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                title: music video
+                description: this is music video please like comment and share
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6616504d31f108739e373c1b
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Video
+      summary: deleteVideo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6639ec92d62445a49c40e9e3
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /video/publishStatus/{id}:
+    post:
+      tags:
+        - Video
+      summary: togglePublishStatus
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6616504d31f108739e373c1b
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /video/search:
+    get:
+      tags:
+        - Video
+      summary: searchVideo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: keyword
+          in: query
+          schema:
+            type: string
+          example: nature
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '1'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '2'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /subscription/u/{id}:
+    get:
+      tags:
+        - subscription
+      summary: subscribers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 660861fb6a7789204d7cf337
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /subscription/c/{id}:
+    get:
+      tags:
+        - subscription
+      summary: subscribedChannels
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 660bf345fb63741591ede2bf
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /subscription/{id}:
+    post:
+      tags:
+        - subscription
+      summary: subscribeChannel
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 660bfd46112ab21335e99fc1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /likes/toggle/c/{id}:
+    post:
+      tags:
+        - Likes
+      summary: toggleCommentLike
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6639c627a6117fb1421f1db4
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /likes/toggle/v/{id}:
+    post:
+      tags:
+        - Likes
+      summary: toggleVideoLike
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6616504d31f108739e373c1b
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /likes/videos/{id}:
+    get:
+      tags:
+        - Likes
+      summary: getLikedVideo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6616504d31f108739e373c1b
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /comment/{id}:
+    post:
+      tags:
+        - Comment
+      summary: postComment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                content: i dont't like it
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6616504d31f108739e373c1b
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Comment
+      summary: deleteComment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 663a50105d958d4eb47312ac
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /comment/videos/{id}:
+    get:
+      tags:
+        - Comment
+      summary: getVideoComment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6616504d31f108739e373c1b
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
